@@ -14,7 +14,7 @@ import org.lrk.springframework.test.bean.UserService;
 public class ApiTest {
 
     @Test
-    public void testBeanFactory() {
+    public void testBeanFactory1() {
         // 初始化BeanFactory
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
@@ -30,5 +30,18 @@ public class ApiTest {
         userServiceSingleton.queryUserInfo();
 
         System.out.println(userService == userServiceSingleton);
+    }
+
+    @Test
+    public void testBeanFactory2() {
+        // 初始化BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        //注册Bean
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+        beanFactory.registerBeanDefinition("userService", beanDefinition);
+
+        UserService userService = (UserService) beanFactory.getBean("userService", "小黑子");
+        System.out.println(userService);
     }
 }
