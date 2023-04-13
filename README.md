@@ -29,5 +29,31 @@ Bean注册到容器中不需要传递一个以及实例化的Bean对象（而是
 
 ---
 
+# 3. 注入属性和依赖对象
+
+进一步将将创建对象的实例化细分，注入的属性不再局限于int、long、String等，还包括没有被实例化的对象。
+
+定义一个`BeanRefernence`引用对象，里面只有一个简单的Bean名称，这个当作一个属性中被注入的Bean。
+
+并且还创建一个`PropertyValues`的集合存放各种属性。`PropertyValues`集合存放的是`PropertyValue`类。
+
+该类只有两个成员变量，分别是属性名称和属性值。可以说是一个key-value的类。
+
+`BeanDefinition`也做了修改，`BeanDefinition`新增了一个`PropertyValues`的成员变量，代表这个Bean的属性信息。
+
+在`AbstractAutowireCapableBeanFactory`的`createBean`中，会首先创建一个Bean，但是这个Bean只是被实例化了，成员变量并没有被赋值。
+
+这时候调用`applyPropertyValues`方法进行成员变量赋值。
+
+遍历`BeanDefinition`中的`PropertyValues`，如果发现`PropertyValue`的`value`是`BeanReference`类型，说明这个value是一个Bean，需要在容器中寻找，于是就需要在容器中获取该Bean。
+
+> 但是，一定一定要注意，要先将这个Bean注册到容器中，否则，会抛出异常说这个Bean没有被定义
+
+之后，通过hutool的工具类，对bean的成员变量赋值即可。
+
+> 注意，这里并没有考虑到循环依赖这种现象。
+
+---
+
 
 

@@ -3,7 +3,6 @@ package org.lrk.springframework.beans.factory.support;
 import org.lrk.springframework.beans.BeansException;
 import org.lrk.springframework.beans.factory.BeanFactory;
 import org.lrk.springframework.beans.factory.config.BeanDefinition;
-import org.lrk.springframework.beans.factory.config.DefaultSingletonBeanRegistry;
 
 /**
  * @Author: lrk

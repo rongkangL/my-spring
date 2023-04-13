@@ -1,7 +1,11 @@
 package org.lrk.springframework.beans.factory.support;
 
+import cn.hutool.core.bean.BeanUtil;
 import org.lrk.springframework.beans.BeansException;
+import org.lrk.springframework.beans.PropertyValue;
+import org.lrk.springframework.beans.PropertyValues;
 import org.lrk.springframework.beans.factory.config.BeanDefinition;
+import org.lrk.springframework.beans.factory.config.BeanReference;
 
 import java.lang.reflect.Constructor;
 
@@ -30,6 +34,7 @@ public abstract class AbstractAutowireCapableBeanFactory  extends AbstractBeanFa
         try {
             //bean = beanDefinition.getBeanClass().newInstance();
             bean = createBeanInstance(beanDefinition, beanName, args);
+            applyPropertyValues(beanName, bean, beanDefinition);
         } catch (Exception e) {
             throw new BeansException("创建Bean失败", e);
         }
@@ -52,6 +57,35 @@ public abstract class AbstractAutowireCapableBeanFactory  extends AbstractBeanFa
             }
         }
         return getInstantiationStrategy().instantiate(beanDefinition, beanName, constructorToUse, args);
+    }
+
+    /**
+     *  填充属性，如果遇到是Bean引用，则从容器中获取Bean实例，填充
+     * @param beanName bean的名字
+     * @param bean bean的实例
+     * @param beanDefinition bean的定义
+     */
+    protected void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition){
+        try {
+            // 获取Bean定义中的属性集合
+            PropertyValues propertyValues = beanDefinition.getPropertyValues();
+            for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
+                // 获取属性名
+                String name = propertyValue.getName();
+                // 获取属性值
+                Object value = propertyValue.getValue();
+                if (value instanceof BeanReference){
+                    // 值属于Bean引用
+                    BeanReference beanReference = (BeanReference) value;
+                    // 从根据Bean引用的名字，从容器中获取其实例
+                    value = getBean(beanReference.getBeanName());
+                }
+                // 属性填充
+                BeanUtil.setFieldValue(bean, name, value);
+            }
+        }catch (Exception e){
+            throw new BeansException("填充Bean属性值失败，values: " + beanName);
+        }
     }
 
     public InstantiationStrategy getInstantiationStrategy() {
